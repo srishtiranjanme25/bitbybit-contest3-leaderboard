@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>BitByBit - Contest#3 | Leaderboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-dark: #020617;
+      --bg-card: rgba(15, 23, 42, 0.92);
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.25);
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border-soft: rgba(148, 163, 184, 0.35);
+      --gold: #facc15;
+      --silver: #e5e7eb;
+      --bronze: #fb923c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      min-height: 100vh;
+      color: var(--text-main);
+      background:
+        radial-gradient(circle at top, #1d2951 0, transparent 50%),
+        radial-gradient(circle at 20% 80%, #0ea5e9 0, transparent 55%),
+        radial-gradient(circle at 80% 90%, #4f46e5 0, transparent 55%),
+        #020617;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 1.4rem 2.8rem;
+      overflow-x: hidden;   /* ✅ allow vertical scroll, prevent horizontal */
+      /* no overflow-y: hidden */
+    }
+
+    /* Starry background */
+    .starfield {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      border-radius: 999px;
+      background: white;
+      opacity: 0.9;
+      animation: twinkle 4s ease-in-out infinite alternate;
+    }
+
+    .star:nth-child(odd) {
+      animation-duration: 5.5s;
+    }
+    .star:nth-child(3n) {
+      animation-duration: 7s;
+      transform: scale(1.2);
+    }
+
+    @keyframes twinkle {
+      0% { opacity: 0.1; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1.6); }
+    }
+
+    .shooting-star {
+      position: absolute;
+      width: 140px;
+      height: 2px;
+      background: linear-gradient(90deg, rgba(248, 250, 252, 0.9), transparent);
+      border-radius: 999px;
+      opacity: 0.0;
+      animation: shoot 7s linear infinite;
+      filter: blur(0.3px);
+    }
+
+    @keyframes shoot {
+      0% {
+        transform: translate3d(-30%, -30%, 0) rotate(315deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      40% {
+        transform: translate3d(140%, 140%, 0) rotate(315deg);
+        opacity: 0;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+
+    .leaderboard-wrapper {
+      max-width: 960px;
+      width: 100%;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .leaderboard-card {
+      background: var(--bg-card);
+      border-radius: 1.5rem;
+      border: 1px solid var(--border-soft);
+      box-shadow:
+        0 28px 60px rgba(15, 23, 42, 0.9),
+        0 0 40px rgba(56, 189, 248, 0.18);
+      padding: 2.1rem 2rem 1.8rem;
+      backdrop-filter: blur(20px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .leaderboard-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(56, 189, 248, 0.16), transparent 60%),
+        radial-gradient(circle at 90% 100%, rgba(129, 140, 248, 0.16), transparent 60%);
+      opacity: 0.7;
+      z-index: -1;
+    }
+
+    .glow-ring {
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 999px;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      top: -120px;
+      right: -60px;
+      filter: blur(0.5px);
+      opacity: 0.6;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      padding: 0.35rem 0.9rem;
+      border: 1px solid var(--accent-soft);
+      margin-bottom: 0.7rem;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+    }
+
+    h1 {
+      font-size: clamp(1.9rem, 2.5vw, 2.5rem);
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      margin-bottom: 0.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.4rem;
+    }
+
+    .contest-name-main {
+      color: #e5e7eb;
+      text-shadow: 0 0 18px rgba(56, 189, 248, 0.4);
+    }
+
+    .contest-name-sub {
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 1.4rem;
+    }
+
+    .accent-bar {
+      width: 82px;
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      margin-bottom: 1.4rem;
+    }
+
+    /* Table */
+    .table-container {
+      border-radius: 1.1rem;
+      border: 1px solid rgba(51, 65, 85, 0.95);
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.7), transparent 70%),
+        rgba(15, 23, 42, 0.96);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    thead {
+      background: linear-gradient(90deg, rgba(15, 23, 42, 0.96), rgba(30, 64, 175, 0.95));
+    }
+
+    thead th {
+      padding: 0.85rem 1.1rem;
+      font-weight: 500;
+      text-align: left;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.18em;
+      color: #cbd5f5;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.9);
+    }
+
+    thead th:last-child {
+      text-align: right;
+    }
+
+    tbody tr {
+      transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    tbody tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.98);
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.94);
+    }
+
+    tbody tr:hover {
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.12), transparent 60%),
+        rgba(15, 23, 42, 0.98);
+      transform: translateY(-1px);
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.2);
+    }
+
+    td {
+      padding: 0.78rem 1.1rem;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.9);
+      white-space: nowrap;
+    }
+
+    td:nth-child(2) {
+      white-space: nowrap;
+      width: 100%;
+    }
+
+    .rank-cell {
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      font-size: 0.86rem;
+      text-transform: uppercase;
+      color: #cbd5f5;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .user-cell {
+      font-weight: 400;
+      color: #e5e7eb;
+      font-size: 0.95rem;
+    }
+
+    .score-cell {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      color: #e0f2fe;
+    }
+
+    /* Rank badges */
+    .rank-pill {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+    }
+
+    .tie-pill {
+      border-color: rgba(56, 189, 248, 0.7);
+      color: #bae6fd;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    /* Medals */
+    .gold td {
+      border-bottom-color: rgba(250, 204, 21, 0.45);
+    }
+    .gold .rank-cell::before {
+      content: "★";
+      color: var(--gold);
+      text-shadow: 0 0 10px rgba(250, 204, 21, 0.85);
+      font-size: 1rem;
+    }
+
+    .silver td {
+      border-bottom-color: rgba(209, 213, 219, 0.45);
+    }
+    .silver .rank-cell::before {
+      content: "★";
+      color: var(--silver);
+      text-shadow: 0 0 10px rgba(229, 231, 235, 0.85);
+      font-size: 1rem;
+    }
+
+    .bronze td {
+      border-bottom-color: rgba(248, 148, 94, 0.55);
+    }
+    .bronze .rank-cell::before {
+      content: "★";
+      color: var(--bronze);
+      text-shadow: 0 0 10px rgba(248, 148, 94, 0.9);
+      font-size: 1rem;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 1.4rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      align-items: center;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem 0.75rem;
+      align-items: center;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+    }
+
+    .legend-gold {
+      background: var(--gold);
+      box-shadow: 0 0 8px rgba(250, 204, 21, 0.9);
+    }
+    .legend-silver {
+      background: var(--silver);
+      box-shadow: 0 0 8px rgba(229, 231, 235, 0.9);
+    }
+    .legend-bronze {
+      background: var(--bronze);
+      box-shadow: 0 0 8px rgba(248, 148, 94, 0.9);
+    }
+
+    .footer-right {
+      opacity: 0.9;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 1.4rem 1rem 2.4rem;
+      }
+
+      .leaderboard-card {
+        padding: 1.6rem 1.2rem 1.4rem;
+        border-radius: 1.2rem;
+      }
+      h1 {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.15rem;
+      }
+      td, th {
+        padding-inline: 0.75rem;
+      }
+      .footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Starry sky -->
+  <div class="starfield">
+    <!-- Static stars -->
+    <div class="star" style="top: 5%; left: 10%;"></div>
+    <div class="star" style="top: 12%; left: 40%;"></div>
+    <div class="star" style="top: 20%; left: 75%;"></div>
+    <div class="star" style="top: 30%; left: 25%;"></div>
+    <div class="star" style="top: 45%; left: 60%;"></div>
+    <div class="star" style="top: 55%; left: 15%;"></div>
+    <div class="star" style="top: 65%; left: 80%;"></div>
+    <div class="star" style="top: 78%; left: 50%;"></div>
+    <div class="star" style="top: 88%; left: 30%;"></div>
+
+    <!-- Shooting star -->
+    <div class="shooting-star" style="top: 18%; left: -15%;"></div>
+  </div>
+
+  <div class="leaderboard-wrapper">
+    <section class="leaderboard-card">
+      <div class="glow-ring"></div>
+
+      <div class="badge">
+        <span class="badge-dot"></span>
+        Official Contest Leaderboard
+      </div>
+
+      <h1>
+        <span class="contest-name-main">BitByBit - Contest#3</span>
+        <span class="contest-name-sub">LEADERBOARD</span>
+      </h1>
+
+      <p class="subtitle">
+        Congratulations to all the participants! These are the final standings!
+      </p>
+
+      <div class="accent-bar"></div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>User</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Rank 1 (tie) -->
+            <tr class="gold">
+              <td class="rank-cell">
+                1
+                <span class="rank-pill tie-pill">tie</span>
+              </td>
+              <td class="user-cell">mimanshasharma_c1</td>
+              <td class="score-cell">81.00</td>
+            </tr>
+            <tr class="gold">
+              <td class="rank-cell">
+                1
+                <span class="rank-pill tie-pill">tie</span>
+              </td>
+              <td class="user-cell">advikavishal_cs1</td>
+              <td class="score-cell">81.00</td>
+            </tr>
+
+            <!-- Rank 3 -->
+            <tr class="bronze">
+              <td class="rank-cell">3</td>
+              <td class="user-cell">abhishanu07</td>
+              <td class="score-cell">67.06</td>
+            </tr>
+
+            <tr>
+              <td class="rank-cell">4</td>
+              <td class="user-cell">s_shantanu_ai</td>
+              <td class="score-cell">66.00</td>
+            </tr>
+
+            <!-- Rank 5 (tie) -->
+            <tr class="silver">
+              <td class="rank-cell">
+                5
+                <span class="rank-pill tie-pill">tie</span>
+              </td>
+              <td class="user-cell">manasviarvind_c1</td>
+              <td class="score-cell">63.00</td>
+            </tr>
+            <tr class="silver">
+              <td class="rank-cell">
+                5
+                <span class="rank-pill tie-pill">tie</span>
+              </td>
+              <td class="user-cell">sunchingwoo2005</td>
+              <td class="score-cell">63.00</td>
+            </tr>
+
+            <tr>
+              <td class="rank-cell">7</td>
+              <td class="user-cell">chinmay3804</td>
+              <td class="score-cell">59.12</td>
+            </tr>
+            <tr>
+              <td class="rank-cell">8</td>
+              <td class="user-cell">mahimakoul64</td>
+              <td class="score-cell">56.88</td>
+            </tr>
+            <tr>
+              <td class="rank-cell">9</td>
+              <td class="user-cell">skidz7352</td>
+              <td class="score-cell">51.87</td>
+            </tr>
+            <tr>
+              <td class="rank-cell">10</td>
+              <td class="user-cell">jnishant791</td>
+              <td class="score-cell">46.00</td>
+            </tr>
+            <tr>
+              <td class="rank-cell">11</td>
+              <td class="user-cell">SaatvikaReddy</td>
+              <td class="score-cell">45.00</td>
+            </tr>
+
+            <!-- Rank 12 (tie) -->
+            <tr>
+              <td class="rank-cell">
+                12
+                <span class="rank-pill tie-pill">tie</span>
+              </td>
+              <td class="user-cell">amitraksharmukh1</td>
+              <td class="score-cell">30.00</td>
+            </tr>
+            <tr>
+              <td class="rank-cell">
+                12
+                <span class="rank-pill tie-pill">tie</span>
+              </td>
+              <td class="user-cell">ddhruvgnayak</td>
+              <td class="score-cell">30.00</td>
+            </tr>
+
+            <tr>
+              <td class="rank-cell">14</td>
+              <td class="user-cell">shrilaxmi016</td>
+              <td class="score-cell">20.00</td>
+            </tr>
+            <tr>
+              <td class="rank-cell">15</td>
+              <td class="user-cell">mvishrutha_cs24</td>
+              <td class="score-cell">15.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="footer">
+        <div class="legend">
+          <span>Legend:</span>
+          <span class="legend-item">
+            <span class="legend-dot legend-gold"></span> Rank 1
+          </span>
+          <span class="legend-item">
+            <span class="legend-dot legend-silver"></span> Rank 5
+          </span>
+          <span class="legend-item">
+            <span class="legend-dot legend-bronze"></span> Rank 3
+          </span>
+        </div>
+        <div class="footer-right">
+          © BitByBit – Contest#3         </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
